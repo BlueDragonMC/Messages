@@ -9,11 +9,14 @@ import java.util.*
 
 val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(PingMessage::class)
+    subclass(GameStateUpdateMessage::class)
     subclass(SendChatMessage::class)
     subclass(RequestAddToQueueMessage::class)
     subclass(RequestRemoveFromQueueMessage::class)
     subclass(RequestCreateInstanceMessage::class)
     subclass(NotifyInstanceCreatedMessage::class)
+    subclass(NotifyInstanceRemovedMessage::class)
+    subclass(SendPlayerToInstanceMessage::class)
     subclass(PlayJukeboxSongMessage::class)
     subclass(PauseJukeboxSongMessage::class)
     subclass(AddJukeboxSongToQueueMessage::class)
@@ -46,11 +49,16 @@ enum class ChatType {
 @Serializable
 data class PingMessage(@Contextual val containerId: UUID, val versionInfo: Map<String, String>) : Message
 
+@Serializable
+data class GameStateUpdateMessage(@Contextual val instanceId: UUID, val emptyPlayerSlots: Int) : Message
+
 /**
  * Service => Minestom
  */
 @Serializable
-data class SendChatMessage(@Contextual val targetPlayer: UUID, val message: String, val type: ChatType = ChatType.CHAT) : Message
+data class SendChatMessage(
+    @Contextual val targetPlayer: UUID, val message: String, val type: ChatType = ChatType.CHAT
+) : Message
 
 /**
  * Minestom => Service
@@ -77,6 +85,15 @@ data class RequestCreateInstanceMessage(@Contextual val containerId: UUID, val g
 data class NotifyInstanceCreatedMessage(
     @Contextual val containerId: UUID, @Contextual val instanceId: UUID, val gameType: GameType
 ) : Message
+
+/**
+ * Minestom => Service
+ */
+@Serializable
+data class NotifyInstanceRemovedMessage(@Contextual val containerId: UUID, @Contextual val instanceId: UUID) : Message
+
+@Serializable
+data class SendPlayerToInstanceMessage(@Contextual val player: UUID, @Contextual val instance: UUID) : Message
 
 /**
  * Minestom => Service
