@@ -2,6 +2,7 @@ package com.bluedragonmc.messages
 
 import com.bluedragonmc.messagingsystem.message.Message
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
@@ -57,7 +58,7 @@ data class GameStateUpdateMessage(@Contextual val instanceId: UUID, val emptyPla
  */
 @Serializable
 data class SendChatMessage(
-    @Contextual val targetPlayer: UUID, val message: String, val type: ChatType = ChatType.CHAT
+    @Contextual val targetPlayer: UUID, val message: String, @SerialName("chatType") val type: ChatType = ChatType.CHAT
 ) : Message
 
 /**
