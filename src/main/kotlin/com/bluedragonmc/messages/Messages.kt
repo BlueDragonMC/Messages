@@ -1,3 +1,5 @@
+package com.bluedragonmc.messages
+
 import com.bluedragonmc.messagingsystem.message.Message
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
