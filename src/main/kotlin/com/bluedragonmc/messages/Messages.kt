@@ -28,6 +28,8 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(AcceptPartyInvitationMessage::class)
     subclass(RemovePlayerFromPartyMessage::class)
     subclass(PartyChatMessage::class)
+    subclass(PartyTransferMessage::class)
+    subclass(PartyWarpMessage::class)
     subclass(SendFriendRequestMessage::class)
     subclass(AcceptFriendRequestMessage::class)
     subclass(RemoveFriendMessage::class)
