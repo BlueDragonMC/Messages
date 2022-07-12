@@ -206,6 +206,22 @@ data class RemovePlayerFromPartyMessage(@Contextual val partyOwner: UUID, @Conte
 @Serializable
 data class PartyChatMessage(@Contextual val player: UUID, val message: String) : Message
 
+/**
+ * Sent to the Puffin service to transfer ownership of a party.
+ * @param oldOwner The UUID of the previous owner of the party.
+ * @param newOwner The UUID of the player to transfer ownership to.
+ */
+@Serializable
+data class PartyTransferMessage(@Contextual val oldOwner: UUID, @Contextual val newOwner: UUID) : Message
+
+/**
+ * Sent to the Puffin service to send all party members to the same instance.
+ * @param containerId A unique identifier for the Minestom server and its docker container. All party members will be sent to an instance on this server.
+ * @param instanceId The UUID of the instance to send all party members to.
+ */
+@Serializable
+data class PartyWarpMessage(@Contextual val containerId: UUID, @Contextual val instanceId: UUID) : Message
+
 // Friends
 
 /**
