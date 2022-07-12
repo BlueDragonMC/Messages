@@ -216,11 +216,12 @@ data class PartyTransferMessage(@Contextual val oldOwner: UUID, @Contextual val 
 
 /**
  * Sent to the Puffin service to send all party members to the same instance.
+ * @param partyOwner The UUID of the player that owns the party.
  * @param containerId A unique identifier for the Minestom server and its docker container. All party members will be sent to an instance on this server.
  * @param instanceId The UUID of the instance to send all party members to.
  */
 @Serializable
-data class PartyWarpMessage(@Contextual val containerId: UUID, @Contextual val instanceId: UUID) : Message
+data class PartyWarpMessage(@Contextual val partyOwner: UUID, @Contextual val containerId: UUID, @Contextual val instanceId: UUID) : Message
 
 // Friends
 
