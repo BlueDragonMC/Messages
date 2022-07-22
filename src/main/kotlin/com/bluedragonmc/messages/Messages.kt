@@ -30,11 +30,14 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(PartyChatMessage::class)
     subclass(PartyTransferMessage::class)
     subclass(PartyWarpMessage::class)
+    subclass(PartyListMessage::class)
     subclass(SendFriendRequestMessage::class)
     subclass(AcceptFriendRequestMessage::class)
     subclass(RemoveFriendMessage::class)
     subclass(RequestFriendListMessage::class)
     subclass(FriendListResponseMessage::class)
+    subclass(RequestUpdateMessage::class)
+    subclass(ReportErrorMessage::class)
 }
 
 // Helper data classes
@@ -223,7 +226,18 @@ data class PartyTransferMessage(@Contextual val oldOwner: UUID, @Contextual val 
  * @param instanceId The UUID of the instance to send all party members to.
  */
 @Serializable
-data class PartyWarpMessage(@Contextual val partyOwner: UUID, @Contextual val containerId: UUID, @Contextual val instanceId: UUID) : Message
+data class PartyWarpMessage(
+    @Contextual val partyOwner: UUID,
+    @Contextual val containerId: UUID,
+    @Contextual val instanceId: UUID
+) : Message
+
+/**
+ * Sent to the Puffin service to list all members of the player's party.
+ * @param player The UUID of the player to send a chat message containing their party's members.
+ */
+@Serializable
+data class PartyListMessage(@Contextual val player: UUID) : Message
 
 // Friends
 
@@ -266,3 +280,31 @@ data class RequestFriendListMessage(@Contextual val player: UUID) : Message
  */
 @Serializable
 data class FriendListResponseMessage(@Contextual val friends: Map<@Contextual UUID, GameType?>) : Message
+
+// Service
+
+/**
+ * A message sent to Puffin to request an update.
+ * @param executor The player to send debugging information to.
+ * @param product The repository to update.
+ * @param ref A Git branch name on the repository.
+ */
+@Serializable
+data class RequestUpdateMessage(@Contextual val executor: UUID, val product: String, val ref: String) : Message
+
+/**
+ * A message sent to Puffin to report an error. The error will be handled or logged accordingly.
+ * @param containerId The name of the Docker container that produced this error.
+ * @param instanceId The name of the Minestom instance that produced this error. (optional)
+ * @param errorMessage The value of [Throwable#getMessage].
+ * @param stackTrace The full stack trace of the exception.
+ * @param additionalDebug A map of additional values to give context about the error. (can be empty)
+ */
+@Serializable
+data class ReportErrorMessage(
+    @Contextual val containerId: UUID,
+    @Contextual val instanceId: UUID?,
+    val errorMessage: String,
+    val stackTrace: String,
+    val additionalDebug: Map<String, String>
+) : Message
