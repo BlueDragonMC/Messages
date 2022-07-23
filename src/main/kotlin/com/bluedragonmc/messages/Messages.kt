@@ -38,6 +38,8 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(FriendListResponseMessage::class)
     subclass(RequestUpdateMessage::class)
     subclass(ReportErrorMessage::class)
+    subclass(ContainerActionMessage::class)
+    subclass(ServerSyncMessage::class)
 }
 
 // Helper data classes
@@ -47,8 +49,15 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
 @Serializable
 data class GameType(val name: String, val mode: String? = null, val mapName: String? = null) : Message
 
+@Serializable
+data class RunningGameInfo(@Contextual val instanceId: UUID, val type: GameType?, val state: GameStateUpdateMessage)
+
 enum class ChatType {
     CHAT, ACTION_BAR, TITLE, SUBTITLE, SOUND
+}
+
+enum class ContainerAction {
+    START, STOP, REMOVE, UPLOAD_LOG, ATTACH
 }
 
 // General
@@ -308,3 +317,20 @@ data class ReportErrorMessage(
     val stackTrace: String,
     val additionalDebug: Map<String, String>
 ) : Message
+
+/**
+ * A message sent to Puffin to request an action on a Docker container.
+ * @param executor The player to send debugging information to.
+ * @param containerId The name of the Docker container to perform the action on.
+ * @param action The action to perform on the Docker container.
+ */
+@Serializable
+data class ContainerActionMessage(@Contextual val executor: UUID, @Contextual val containerId: UUID, val action: ContainerAction) : Message
+
+/**
+ * A message sent to from Minestom servers every few minutes to synchronize their list of instances with the proxy.
+ * @param containerId The name of the Docker container sending the message.
+ * @param instances A list of the IDs of running instances mapped to their game types (if a game is running on that instance)
+ */
+@Serializable
+data class ServerSyncMessage(@Contextual val containerId: UUID, val instances: List<RunningGameInfo>) : Message
