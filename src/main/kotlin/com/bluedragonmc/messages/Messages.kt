@@ -38,8 +38,10 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(FriendListResponseMessage::class)
     subclass(RequestUpdateMessage::class)
     subclass(ReportErrorMessage::class)
-    subclass(ContainerActionMessage::class)
     subclass(ServerSyncMessage::class)
+    subclass(PlayerSyncMessage::class)
+    subclass(QueryPlayerMessage::class)
+    subclass(QueryPlayerMessage.Response::class)
 }
 
 // Helper data classes
@@ -54,10 +56,6 @@ data class RunningGameInfo(@Contextual val instanceId: UUID, val type: GameType?
 
 enum class ChatType {
     CHAT, ACTION_BAR, TITLE, SUBTITLE, SOUND
-}
-
-enum class ContainerAction {
-    START, STOP, REMOVE, UPLOAD_LOG, ATTACH
 }
 
 // General
@@ -319,18 +317,37 @@ data class ReportErrorMessage(
 ) : Message
 
 /**
- * A message sent to Puffin to request an action on a Docker container.
- * @param executor The player to send debugging information to.
- * @param containerId The name of the Docker container to perform the action on.
- * @param action The action to perform on the Docker container.
- */
-@Serializable
-data class ContainerActionMessage(@Contextual val executor: UUID, @Contextual val containerId: UUID, val action: ContainerAction) : Message
-
-/**
- * A message sent to from Minestom servers every few minutes to synchronize their list of instances with the proxy.
+ * A message sent from Minestom servers every few minutes to synchronize their list of instances with the proxy.
  * @param containerId The name of the Docker container sending the message.
  * @param instances A list of the IDs of running instances mapped to their game types (if a game is running on that instance)
  */
 @Serializable
 data class ServerSyncMessage(@Contextual val containerId: UUID, val instances: List<RunningGameInfo>) : Message
+
+/**
+ * A message sent from Minestom servers every few minutes to synchronize their list of players with Puffin.
+ * This message is also sent every time a player joins or leaves.
+ * @param containerId The name of the Docker container sending the message.
+ * @param players A map of online player UUIDs to their usernames.
+ */
+@Serializable
+data class PlayerSyncMessage(@Contextual val containerId: UUID, val players: Map<@Contextual UUID, String>) : Message
+
+/**
+ * A message sent to Puffin to request the name or UUID of a player.
+ * This message is also sent every time a player joins or leaves.
+ * *This message should be sent via RPC.*
+ * @param playerName The name of the player to lookup. If not present, playerUUID must be present.
+ * @param playerUUID The UUID of the player to lookup. If not present, playerName must be present.
+ */
+@Serializable
+data class QueryPlayerMessage(val playerName: String?, @Contextual val playerUUID: UUID?) : Message {
+    /**
+     * The response for a [QueryPlayerMessage].
+     * @param found Whether the player is online on any server on the network
+     * @param username The username of the requested player, or null if offline
+     * @param uuid The UUID of the requested player, or null if offline
+     */
+    @Serializable
+    data class Response(val found: Boolean, val username: String?, @Contextual val uuid: UUID?) : Message
+}
