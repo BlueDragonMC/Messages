@@ -39,7 +39,7 @@ val polymorphicModuleBuilder: PolymorphicModuleBuilder<Message>.() -> Unit = {
     subclass(RequestUpdateMessage::class)
     subclass(ReportErrorMessage::class)
     subclass(ServerSyncMessage::class)
-    subclass(PlayerSyncMessage::class)
+    subclass(PlayerLogoutMessage::class)
     subclass(QueryPlayerMessage::class)
     subclass(QueryPlayerMessage.Response::class)
 }
@@ -325,13 +325,12 @@ data class ReportErrorMessage(
 data class ServerSyncMessage(@Contextual val containerId: UUID, val instances: List<RunningGameInfo>) : Message
 
 /**
- * A message sent from Minestom servers every few minutes to synchronize their list of players with Puffin.
+ * A message sent from proxies when a player disconnects.
  * This message is also sent every time a player joins or leaves.
- * @param containerId The name of the Docker container sending the message.
- * @param players A map of online player UUIDs to their usernames.
+ * @param player The player that disconnected from the proxy.
  */
 @Serializable
-data class PlayerSyncMessage(@Contextual val containerId: UUID, val players: Map<@Contextual UUID, String>) : Message
+data class PlayerLogoutMessage(@Contextual val player: UUID) : Message
 
 /**
  * A message sent to Puffin to request the name or UUID of a player.
